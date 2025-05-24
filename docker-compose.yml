@@ -1,0 +1,21 @@
+ 
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./certs:/app/certs # Asegurarnos que los certificados estén disponibles
+    environment:
+      - NODE_ENV=development
+ 
+    networks:
+      -  my-shared-network
+
+networks:
+  my-shared-network:
+    driver: bridge
