@@ -61,8 +61,6 @@ export const useAppDispatch = () => useDispatch<AppDispatch>();
 
 export default store;*/
 
-
-
 import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
 import authReducer, { AuthState } from './slices/authSlice';
@@ -76,6 +74,10 @@ import choferHorarioReducer, { ChoferHorarioState } from './slices/choferHorario
 import tipoPasajeReducer, { TipoPasajeState } from './slices/tipoPasajeSlice';
 import paquetePasajesReducer, { PaquetePasajesState } from './slices/paquetePasajesSlice';
 import galeriaTourReducer, { GaleriaTourState } from './slices/galeriaTourSlice';
+
+// Importar el repositorio y axios
+import { GaleriaTourRepoHttp } from '../repositories/GaleriaTourRepoHttp';
+import axiosClient from '../api/axiosClient';
 
 // Definición explícita de RootState
 export interface RootState {
@@ -92,6 +94,9 @@ export interface RootState {
   galeriaTour: GaleriaTourState;
   // Agrega otros reducers aquí
 }
+
+// Crear una instancia del repositorio
+const galeriaTourRepository = new GaleriaTourRepoHttp(axiosClient);
 
 // Configura la tienda Redux con todos los reducers
 export const store = configureStore({
@@ -112,6 +117,11 @@ export const store = configureStore({
   // Middleware opcional y otras configuraciones
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
+      thunk: {
+        extraArgument: {
+          galeriaTourRepository // Agrega el repositorio como extraArgument
+        }
+      },
       serializableCheck: {
         // Ignora ciertas acciones o paths para evitar errores de serializabilidad
         ignoredActions: ['auth/login/fulfilled'],
