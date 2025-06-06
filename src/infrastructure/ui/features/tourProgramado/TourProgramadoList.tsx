@@ -148,7 +148,7 @@ const formatFechaCorta = (fechaStr: string | null | undefined) => {
     return asegurarTexto(fechaStr);
   }
 };
-
+/*
 const formatHora = (horaStr: string | null | undefined) => {
   if (!horaStr) return 'No disponible';
   try {
@@ -159,7 +159,32 @@ const formatHora = (horaStr: string | null | undefined) => {
     return asegurarTexto(horaStr);
   }
 };
+*/
 
+// Reemplazar la función formatHora actual
+const formatHora = (horaStr: string | null | undefined) => {
+  if (!horaStr) return 'No disponible';
+  try {
+    // Si es un string simple de hora (HH:MM:SS)
+    if (typeof horaStr === 'string' && horaStr.includes(':') && !horaStr.includes('T') && !horaStr.includes('-')) {
+      // Solo extraer las horas y minutos (ignorar segundos)
+      const partes = horaStr.split(':');
+      return `${partes[0]}:${partes[1]}`;
+    }
+    
+    // Si es una fecha completa, extraer solo la parte de la hora
+    try {
+      const fechaHora = parseISO(asegurarTexto(horaStr));
+      return format(fechaHora, 'HH:mm', { locale: es });
+    } catch (e) {
+      // Si falla el parseo como fecha, devolver el string original formateado
+      return horaStr.toString().substring(0, 5); // Tomar solo HH:MM
+    }
+  } catch (e) {
+    console.error("Error al formatear hora:", e, horaStr);
+    return asegurarTexto(horaStr);
+  }
+};
 // Función para obtener días de la semana abreviados
 const obtenerDiasOperativos = (tour: any): string => {
   const dias: string[] = [];
@@ -215,6 +240,9 @@ const Toast: React.FC<{ message: string; type: 'success' | 'error'; onClose: () 
 };
 
 // Componente para mostrar instancias de un tour específico
+// 
+// 
+/*
 const InstanciasTour: React.FC<{ tourId: number }> = ({ tourId }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { instancias, loading, cantidadGenerada } = useSelector<RootState, InstanciaTourState>(
@@ -284,7 +312,7 @@ const InstanciasTour: React.FC<{ tourId: number }> = ({ tourId }) => {
 
   return (
     <div className="mt-3 bg-gray-50 p-4 rounded-lg border border-gray-200">
-      {/* Toast de notificación */}
+      {/* Toast de notificación *//*}
       {toast.show && (
         <Toast 
           message={toast.message} 
@@ -399,7 +427,202 @@ const InstanciasTour: React.FC<{ tourId: number }> = ({ tourId }) => {
     </div>
   );
 };
+*/
 
+
+// Componente para mostrar instancias de un tour específico
+const InstanciasTour: React.FC<{ tourId: number }> = ({ tourId }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { instancias, loading, cantidadGenerada } = useSelector<RootState, InstanciaTourState>(
+    (state) => state.instanciaTour
+  );
+  const [showInstancias, setShowInstancias] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({
+    show: false,
+    message: '',
+    type: 'success'
+  });
+
+  // Mostrar notificación
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ show: true, message, type });
+  };
+
+  // Ocultar notificación
+  const hideToast = () => {
+    setToast({ ...toast, show: false });
+  };
+
+  // Cargar las instancias cuando se muestre el componente
+  useEffect(() => {
+    if (showInstancias) {
+      dispatch(fetchInstanciasPorTourProgramado(tourId))
+        .unwrap()
+        .catch(error => {
+          console.error("Error al cargar instancias:", error);
+          showToast('Error al cargar las instancias del tour', 'error');
+        });
+    }
+  }, [dispatch, tourId, showInstancias]);
+
+  // Generar instancias para este tour
+  const handleGenerarInstancias = () => {
+    // Verificar si ya existen instancias para evitar duplicados
+    if (instancias.length > 0) {
+      if (!window.confirm('Ya existen instancias para este tour. Generar nuevas instancias podría crear duplicados. ¿Desea continuar?')) {
+        return;
+      }
+    }
+    
+    setIsGenerating(true);
+    dispatch(generarInstancias(tourId))
+      .unwrap()
+      .then((cantidad) => {
+        showToast(`Se generaron ${cantidad} instancias de tour correctamente`, 'success');
+        // Recargar las instancias
+        dispatch(fetchInstanciasPorTourProgramado(tourId));
+      })
+      .catch(error => {
+        console.error("Error al generar instancias:", error);
+        showToast('Error al generar instancias de tour', 'error');
+      })
+      .finally(() => {
+        setIsGenerating(false);
+      });
+  };
+
+  if (!showInstancias) {
+    return (
+      <div className="mt-2">
+        <button
+          onClick={() => setShowInstancias(true)}
+          className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800"
+        >
+          <FaListAlt className="mr-1" /> Ver instancias del tour
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 bg-gray-50 p-4 rounded-lg border border-gray-200">
+      {/* Toast de notificación */}
+      {toast.show && (
+        <Toast 
+          message={toast.message} 
+          type={toast.type} 
+          onClose={hideToast} 
+        />
+      )}
+
+      <div className="flex justify-between items-center mb-3">
+        <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+          <FaCalendarWeek className="mr-2 text-blue-600" /> 
+          Instancias del Tour
+        </h3>
+        <button
+          onClick={() => setShowInstancias(false)}
+          className="text-gray-500 hover:text-gray-700"
+        >
+          <span className="text-sm">Cerrar</span>
+        </button>
+      </div>
+
+      <div className="mb-3">
+        <button
+          onClick={handleGenerarInstancias}
+          disabled={isGenerating}
+          className={`inline-flex items-center px-3 py-2 border border-transparent text-sm rounded-md font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none transition-colors duration-200 ${isGenerating ? 'opacity-75 cursor-not-allowed' : ''}`}
+        >
+          <FaCalendarPlus className="mr-2" /> 
+          {isGenerating ? 'Generando...' : 'Generar Instancias'}
+        </button>
+        
+        {cantidadGenerada !== null && (
+          <div className="mt-2 text-green-600 bg-green-50 p-2 rounded-md inline-block">
+            <FaCheck className="inline-block mr-1" /> Se generaron {cantidadGenerada} instancias de tour
+          </div>
+        )}
+      </div>
+
+      {loading ? (
+        <div className="text-center py-4">
+          <div className="w-10 h-10 mx-auto border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+          <p className="mt-2 text-blue-800">Cargando instancias...</p>
+        </div>
+      ) : instancias.length > 0 ? (
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-100">
+              <tr>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Fecha
+                </th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Horario
+                </th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Chofer
+                </th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Embarcación
+                </th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Cupo
+                </th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Estado
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {instancias.map((instancia) => (
+                <tr key={instancia.id_instancia} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
+                    {instancia.fecha_especifica_str || formatFechaCorta(instancia.fecha_especifica)}
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
+                    {/* Usar los campos _str directamente */}
+                    {instancia.hora_inicio_str || formatHora(instancia.hora_inicio)} - {instancia.hora_fin_str || formatHora(instancia.hora_fin)}
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
+                    {instancia.nombre_chofer || 'No asignado'}
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
+                    {instancia.nombre_embarcacion}
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
+                    {instancia.cupo_disponible}
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-medium rounded-full ${getEstadoBadgeClass(asegurarTexto(instancia.estado))}`}>
+                      {asegurarTexto(instancia.estado)}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="text-center py-4 bg-gray-100 rounded-lg">
+          <FaInfoCircle className="mx-auto text-blue-500 text-xl mb-2" />
+          <p className="text-gray-700">No hay instancias generadas para este tour</p>
+          <p className="text-gray-500 text-sm mt-1">
+            Haz clic en "Generar Instancias" para crear las fechas específicas de este tour
+          </p>
+        </div>
+      )}
+      
+      {instancias.length > 0 && (
+        <div className="mt-2 text-xs text-gray-500 italic">
+          Las instancias son las fechas específicas en que operará este tour según los días configurados
+        </div>
+      )}
+    </div>
+  );
+};
 const TourProgramadoList: React.FC = () => {
   const { tipoId } = useParams<{ tipoId: string }>();
   const navigate = useNavigate();
