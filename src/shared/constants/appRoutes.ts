@@ -50,8 +50,8 @@ export const ROUTES = {
       
       // Nuevas rutas para traducciones (idiomas)
    HORARIOS: {
-  SELECCION: '/admin/horarios',
-  TOUR: {
+     SELECCION: '/admin/horarios',
+    TOUR: {
     LIST: '/admin/horarios-tour',
     NEW: '/admin/horarios-tour/nuevo',
     EDIT: (id: string | number) => `/admin/horarios-tour/editar/${id}`,
@@ -73,7 +73,13 @@ export const ROUTES = {
         DETAIL: (id: string | number) => `/admin/paquetes-pasajes/${id}`,
       }
     },
-    
+    TOURS_PROGRAMADOS: {
+  LIST: '/admin/tours',
+  LISTA_POR_TIPO: (id: string | number) => `/admin/tours/lista/${id}`,
+  NEW: '/admin/tours/nuevo',
+  EDIT: (id: string | number) => `/admin/tours/editar/${id}`,
+  DETAIL: (id: string | number) => `/admin/tours/${id}`,
+},
   
   
   },
