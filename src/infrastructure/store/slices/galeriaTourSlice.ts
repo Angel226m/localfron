@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { GaleriaTour, GaleriaTourRequest, GaleriaTourUpdateRequest } from '../../../domain/entities/GaleriaTour';
 import { CrearGaleriaTour } from '../../../application/use-cases/galeriatour/CrearGaleriaTour';
-import { ObtenerGaleriaTourPorId } from '../../../application/use-cases/galeriatour/ObtenerGaleriaTourPorID';
+import { ObtenerGaleriaTourPorId } from '../../../application/use-cases/galeriatour/ObtenerGaleriaTourPorId';
 import { ListarGaleriaTourPorTipoTour } from '../../../application/use-cases/galeriatour/ListarGaleriaTourPorTipoTour';
 import { ActualizarGaleriaTour } from '../../../application/use-cases/galeriatour/ActualizarGaleriaTour';
 import { EliminarGaleriaTour } from '../../../application/use-cases/galeriatour/EliminarGaleriaTour';

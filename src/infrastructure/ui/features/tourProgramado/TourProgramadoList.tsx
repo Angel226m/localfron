@@ -1083,7 +1083,7 @@ const TourProgramadoList: React.FC = () => {
                   </div>
                   
                   {/* Información principal del tour */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                 { /*<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div className="flex items-center">
                       <FaCalendarAlt className="text-blue-500 mr-2" />
                       <span className="text-gray-700">{formatFecha(tour.fecha)}</span>
@@ -1100,7 +1100,31 @@ const TourProgramadoList: React.FC = () => {
                       <FaShip className="text-blue-500 mr-2" />
                       <span className="text-gray-700">{asegurarTexto(tour.nombre_embarcacion) || 'Embarcación no asignada'}</span>
                     </div>
-                  </div>
+                  </div>*/}
+                  {/* Información principal del tour */}
+{/* Información principal del tour */}
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+  <div className="flex items-center">
+    <FaCalendarAlt className="text-blue-500 mr-2" />
+    <span className="text-gray-700">
+      {formatFecha(tour.fecha)}
+      <span className="ml-2 text-xs text-gray-500">(Creado)</span>
+    </span>
+  </div>
+  
+  <div className="flex items-center">
+    <FaClock className="text-blue-500 mr-2" />
+    <span className="text-gray-700">
+      {/* Simplemente usar formatHora */}
+      {formatHora(tour.hora_inicio)} - {formatHora(tour.hora_fin)}
+    </span>
+  </div>
+  
+  <div className="flex items-center">
+    <FaShip className="text-blue-500 mr-2" />
+    <span className="text-gray-700">{asegurarTexto(tour.nombre_embarcacion) || 'Embarcación no asignada'}</span>
+  </div>
+</div>
                   
                   {/* Información del chofer y cupo */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
