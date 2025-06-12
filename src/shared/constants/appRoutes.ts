@@ -218,12 +218,12 @@ export const ROUTES = {
       DETAIL: (id: string | number) => `/admin/tours/${id}`,
     },
   },
-  
-  VENDEDOR: {
+    VENDEDOR: {
     DASHBOARD: '/vendedor/dashboard',
     RESERVAS: '/vendedor/reservas',
     TOURS: '/vendedor/tours',
-    CLIENTES: '/vendedor/clientes',
+       CLIENTES: '/vendedor/clientes', // Simplificado a una sola ruta base
+
     PAGOS: '/vendedor/pagos',
     SOPORTE: '/vendedor/soporte',
   },

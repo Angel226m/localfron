@@ -416,10 +416,15 @@ import TourProgramadoDetail from './infrastructure/ui/features/tourProgramado/To
 // Páginas de Vendedor
 import VendedorDashboard from './infrastructure/ui/pages/VendedorDashboard';
 import ReservasVendedorPage from './infrastructure/ui/pages/ReservasVendedorPage';
-import ToursDisponiblesPage from './infrastructure/ui/pages/ToursDisponiblesPage';
+import ToursDisponiblesPage from './infrastructure/ui/pages/ToursDisponiblesPageVendedor';
 import ClientesVendedorPage from './infrastructure/ui/pages/ClientesVendedorPage';
 import PagosVendedorPage from './infrastructure/ui/pages/PagosVendedorPage';
 import SoporteVendedorPage from './infrastructure/ui/pages/SoporteVendedorPage';
+ 
+// Importar componentes de cliente
+import ClienteList from './infrastructure/ui/features/cliente_ven/ClienteList';
+import ClienteForm from './infrastructure/ui/features/cliente_ven/ClienteForm';
+import ClienteDetail from './infrastructure/ui/features/cliente_ven/ClienteDetail';
 
 // Componente para rutas protegidas
 const ProtectedRoute: React.FC<{ 
@@ -441,6 +446,7 @@ const ProtectedRoute: React.FC<{
     return <Navigate to={ROUTES.AUTH.LOGIN} replace />;
   }
   
+  // Solo los administradores necesitan seleccionar sede explícitamente
   if (requireSede && !selectedSede && user.rol === 'ADMIN') {
     return <Navigate to={ROUTES.AUTH.SELECT_SEDE} replace />;
   }
@@ -614,31 +620,30 @@ const App: React.FC = () => {
           <Route path="" element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
-        
-        {/* RUTAS DE VENDEDOR */}
-        <Route path="/vendedor" element={
-          <ProtectedRoute allowedRoles={['VENDEDOR']}>
-            <VendedorLayout />
-          </ProtectedRoute>
-        }>
-          <Route path="dashboard" element={<VendedorDashboard />} />
-          <Route path="reservas" element={<ReservasVendedorPage />} />
-          <Route path="tours" element={<ToursDisponiblesPage />} />
-          <Route path="clientes" element={<ClientesVendedorPage />} />
-          <Route path="pagos" element={<PagosVendedorPage />} />
-          <Route path="soporte" element={<SoporteVendedorPage />} />
-          
-          {/* Vendedores también pueden ver embarcaciones de su sede */}
-          <Route path="embarcaciones" element={<EmbarcacionList />} />
-          <Route path="embarcaciones/:id" element={<EmbarcacionDetail />} />
-          
-          {/* Vendedores pueden ver tipos de tour (solo lectura) */}
-          <Route path="tipos-tour" element={<TipoTourList />} />
-          <Route path="tipos-tour/:id" element={<TipoTourDetail />} />
-          
-          <Route path="" element={<Navigate to={ROUTES.VENDEDOR.DASHBOARD} replace />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
+
+
+
+  
+{/* RUTAS DE VENDEDOR */}
+<Route path="/vendedor" element={
+  <ProtectedRoute allowedRoles={['VENDEDOR']}>
+    <VendedorLayout />
+  </ProtectedRoute>
+}>
+  <Route path="dashboard" element={<VendedorDashboard />} />
+  <Route path="reservas" element={<ReservasVendedorPage />} />
+  <Route path="tours" element={<ToursDisponiblesPage />} />
+  
+  {/* Rutas de clientes - AHORA usando rutas anidadas */}
+  <Route path="clientes/*" element={<ClientesVendedorPage />} />
+  
+  <Route path="pagos" element={<PagosVendedorPage />} />
+  <Route path="soporte" element={<SoporteVendedorPage />} />
+  
+  {/* Resto de rutas... */}
+  <Route path="" element={<Navigate to={ROUTES.VENDEDOR.DASHBOARD} replace />} />
+  <Route path="*" element={<NotFoundPage />} />
+</Route>
        
         {/* RUTAS DE CHOFER */}
         <Route path="/chofer" element={
